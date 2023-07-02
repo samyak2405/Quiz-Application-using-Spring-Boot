@@ -4,9 +4,12 @@ import com.samyak.quizapp.DAO.QuestionDAO;
 import com.samyak.quizapp.DAO.question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,26 +17,36 @@ import java.util.Optional;
 public class QuestionService {
     @Autowired
     QuestionDAO questionDAO;
-    public List<question> getAllQuestions() {
-        return questionDAO.findAll();
+    public ResponseEntity<List<question>> getAllQuestions()
+    {
+        try {
+            return new ResponseEntity<>(questionDAO.findAll(), HttpStatus.OK);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(),HttpStatus.BAD_REQUEST);
     }
 
-    public List<question> getQuestionsByCategory(String category) {
-        return questionDAO.findByCategory(category);
+    public ResponseEntity<List<question>> getQuestionsByCategory(String category) {
+        return new ResponseEntity<>(questionDAO.findByCategory(category),HttpStatus.OK);
     }
 
-    public List<question> getQuestionsByLevel(String difficultylevel) {
-        return questionDAO.findBydifficultylevel(difficultylevel);
+    public ResponseEntity<List<question>> getQuestionsByLevel(String difficultylevel) {
+        return new ResponseEntity<>(questionDAO.findBydifficultylevel(difficultylevel),HttpStatus.OK);
     }
 
-    public String addQuestion(question question) {
-        questionDAO.save(question);
-        return "success";
+    public ResponseEntity<String> addQuestion(question question) {
+        if(question!=null)
+        {
+            questionDAO.save(question);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    public String deleteQuestion(Integer id) {
+    public ResponseEntity<String> deleteQuestion(Integer id) {
         questionDAO.deleteById(id);
-        return "success";
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public boolean existById(Integer id)
@@ -41,7 +54,7 @@ public class QuestionService {
         return questionDAO.existsById(id);
     }
 
-    public String updateQuestion( Integer id, question question) {
+    public ResponseEntity<String> updateQuestion( Integer id, question question) {
         if(questionDAO.existsById(id))
         {
             question existQuestion = questionDAO.getReferenceById(id);
@@ -54,8 +67,8 @@ public class QuestionService {
             existQuestion.setQuestion_title(question.getQuestion_title());
             existQuestion.setRight_answer(question.getRight_answer());
             questionDAO.save(existQuestion);
-            return "success";
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        return "failure";
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
