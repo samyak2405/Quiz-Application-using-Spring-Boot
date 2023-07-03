@@ -1,4 +1,4 @@
-package com.samyak.quizapp.DAO;
+package com.samyak.quizapp.model;
 
 
 import jakarta.persistence.Entity;
